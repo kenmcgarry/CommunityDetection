@@ -1,0 +1,255 @@
+% RandomWalkModules_McGarry.tex
+% To be submitted to: Knowledge Based Systems
+% submitted: 
+
+\documentclass[a4paper,8pt,twocolumn,5p]{elsarticle}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{epsf}
+\usepackage{graphicx}
+\usepackage{epstopdf}
+\usepackage{natbib} 
+\usepackage{mathtools}
+%\usepackage[margin=1in]{geometry}
+\usepackage{array}% http://ctan.org/pkg/array
+\usepackage{amsmath} 
+\usepackage{algorithmicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+%\usepackage{subfigure}
+\usepackage{subcaption}
+\usepackage{verbatim}
+\usepackage{mwe}
+\usepackage{tikz}
+\usetikzlibrary{matrix,fit}
+
+\begin{document}
+\begin{frontmatter}
+\title{Community network discovery by weighting a random walk algorithm with ontological information}
+
+\author[add2]{Ken McGarry}
+\ead{ken.mcgarry@sunderland.ac.uk}
+\author[add2]{Joe Bloggs}
+%\ead{joe.bloggs@sunderland.ac.uk}
+\address[add2]{School of Computing, Faculty of Technology, \\University of Sunderland, St Peters Campus, 
+\\Sunderland, SR6 ODD, UK}
+
+\begin{abstract}
+It is well known that individuals, objects and entities in the real-world can be shared between many groups or clusters. Individuals may belong to several affiliations and need not be uniquely assigned to a single organization. This is true of people in social networks and many other areas of business, commerce, medicine and science. Community detection is an important activity and allows the assessment and influence of key groups and agents (be they people or entities) as they cooperate and interact in their environments with other groups and agents. In this work we  identify overlapping community clusters or modules through a modified random walk algorithm that is biased by existing domain knowledge (ontologies). Random walks are good for detecting modules since they tend to stay in a local data space and generally do not wander too far away. The hypothesis is that the random walk may improve its module finding ability by using domain knowledge to a limited extent. That is to say it can find better, more plausible structures due to this additional information. The improvement would reduce the production of modules that are likely to be noise and therefore not valid, reducing the false positive identifications. Our system MINOAN: \underline{M}odular \underline{IN}ferencing using \underline{O}ntologys \underline{A}nd \underline{N}etworks, builds a complex network based computational model from high accuracy data and ontological information. We develop a novel random walk algorithm that utilizes knowledge  for the detection of community modules by traversing the complex network. We test our system on a variety of different data from commerce, biology and science. We further validate our findings with the literature and compare our techniques with competing systems. 
+\end{abstract}
+
+\begin{keyword}
+Random walk, complex networks \sep modules \sep ontological knowledge \sep community detection.
+\end{keyword}
+\end{frontmatter}
+
+\section{Introduction}
+In this work we explore how high-level, expert knowledge residing in ontology's can be used to guide and constrain the search space for a community detection algorithm operating on a graph or complex network.  The main issue for any algorithm taking this approach is to correctly judge the patterns that could be novel, plausible discoveries and false positives/noise that would not be useful. Blindly, rejecting patterns because they do not fit into a narrow template of current knowledge and way of thinking could lose many valid and novel discoveries. Complex networks (graph theory) are a natural way to represent entities and their relationships and associations with other entities \cite{Erdos1959,Albert2002}. They have well defined characteristics that enable a sound statistical estimation and description of their properties \cite{Milo02,Yaveroglu2014}. We generally use the term {\it complex systems} because it is difficult to capture their collective behavior from the individual components that comprise them. Numerous application areas have benefited from a complex network analysis, such as power systems, communication networks, biological networks of cells and proteins, social networks and of course the internet.
+
+However, a deeper understanding of the elements comprising a complex network is possible when we consider the communities that may be formed \cite{Girvan2002,Ahn2010}. Community detection in complex networks is currently an active research area, this process can reveal further associations between the entities comprising a complex network \cite{Palla2005,Kim2013}.  Furthermore, recent work has revealed that overlap between various communities makes possible a varied and robust system that can adapt to changing circumstances through redundancy and  multiple functionality \cite{Barabasi2011,Ravasz2002}. However, the overlap of communities can also cause issues \cite{Granovetter1973}. This is evident in medicine, through the interconnectedness of several seemingly unrelated diseases \cite{Menche2015}. Through the pioneering work of  Goh {\it et-al},  science is now starting to reevaluate the definitions of disease and to look at the inter-connectedness of diseases through shared proteins \citep{Goh2007}. The overlap appears to have naturally arisen through evolution since it confers the benefits of robustness and the possibility of increasing the number of cellular functions with the same genetic machinery.  Unfortunately, it can also lead to comorbidity, which implies the presence of one or more diseases in addition to the primary disease \cite{Halban06}.
+
+
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%
+\begin{figure}[h]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+\includegraphics[width=9cm,height=4.5cm]{/common_laptop/LaTex/DiseaseModules/disease_mods.pdf} % OK
+  \end{center}
+\special{center} \caption{Based on the scheme determined by Barabasi we can identify three types of modules based on the known protein interactions, cellular activities and known disease associations. The belief is that these three module types overlap.  The squares represent proteins. The Functional model is composed of protein neighbors clustered by similar functionality. The Topological module is composed of proteins that interact closely  with each other and not at all with proteins that exist outside the module. The disease module contains proteins that are linked with disease through mutations and can be linked to a particular pathology.}
+\label{dismod1}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+In figure \ref{system} we present an overview of our system, on the left of the diagram we have five databases providing information to construct drug similarity structures, networks of disease implicated genes, networks of neighboring genes not directly linked to the diseases, lists of diseases and their similarities based on ontological terms.   The outputs are lists of identified disease modules and lists of drugs that maybe useful for treating them. We define a disease module (or community) as a function of the inter-connectivity patterns between disease implicated genes and genes in their neighborhood. Furthermore, the density of the modules represents a subgraph within the larger connected component. Thus, it is important to note that in our system any specific disease may produce several disease modules that interact with and overlap with other diseases. 
+
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=9cm,height=8cm]{/common_laptop/Latex/DiseaseModules/system_disease.pdf} 
+  \end{center}
+\special{center} \caption{System overview of databases and modules formed from machine learning techniques.}
+\label{system}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The novel aspects of our work include the integration of higher level biological knowledge from ontologies, this prevents the link clustering algorithm from producing clusters that are merely artifacts and not genuine biological entities. Furthermore, we  integrate the disease modules of interacting proteins with the drug network to reveal potential new treatments. The remainder of this is paper is structured as follows; section two discusses the methods including the architecture of our system and the sources of data and knowledge. Our novel algorithmic refinements are also described here. Section three describes the experimental  results, section four presents the discussion and finally section five presents the conclusions and future work. 
+
+\section{Random walk algorithm}
+Our algorithm seeks densely connected sub-graphs through conducting random walks, this technique has its counterparts in natural phenomena such as molecular movements in gases and liquids such as Brownian motion \cite{Magdziarz2009}. We utilize the main characteristic of a random walk which is its propensity to stay inside a community instead of jumping to other communities. Other techniques for discovering communities may be misled by nodes with high connectivity and may produce artificial, biologically implausible clusters. Random walks and Markov chains are used to sample from a distribution over a potentially large Universe such as  represented by protein interactions graphs. Informally, we set up a graph over the universe such that if we perform a long random walk over the graph, the distribution of our position approaches the distribution we want to sample from. A random walk (or Markov chain), is most conveniently represented by its transition matrix P. P is a square matrix denoting the probability of transitioning from any vertex in the graph to any other vertex.  
+
+Below is an example of a graph and the transition matrix for the random walk on this graph.
+
+Let $G=(V,E)$ be an undirected graph. Let $v_{0} \in V$ be chosen arbitrarily as a source of our walk. Random walk is a sequence of vertices $v_0, v_1, \ldots $ where $v_i, i \geq 1$ is chosen from the neighbors of $v_{i-1}$, uniformly at random independent of all previous choices \cite{Newman2003,Derenyi2005,Blondel2008,Rosvall2008,Hric2014}.
+
+
+\section{Related work}
+The importance of medicine and health science has attracted the majority of community (module) research into the detecting disease modules. Similar systems to ours have been developed such as the {DI}se{A}se {MO}dule {D}etection ({DIAMOnD}) algorithm by Ghiassian used a systematic analysis of connectivity patterns of disease proteins in the human interactome \citep{Ghiassian2015}. DIAMOnD was based on a number of assumptions: that although the topology of a network represents  functionality it cannot capture the essence of a disease module; that disease implicated proteins have distinct and predictable connectivity patterns that can be used and exploited to determine disease modules; that the significance of disease proteins connections are more important than simply considering the number (density) of connections. Ghiassian considered over 70 diseases and identified the key disease proteins how they cooperate in disease modules. What the DIAMOnD system lacks is the ability to rank the discovered disease modules in a biologically meaningful way.
+
+The system developed by Yu et al, considers the problem as one of module distance estimation with the understanding that the human interactome is still incomplete and with all the uncertainty inherent \citep{Yu2016}. Yu's ultimate goal was concerned with repositioning drugs for different diseases. The modules are composed of drug-protein pairs and all are involved with cancer specific functions, the disease module distance metric was able to identify several candidate drugs. The MBiRW method developed by Luo et al. (2016), uses a bi-random walk to measure similarity of drugs and diseases \cite{Luo2017}. MBiRW uses novel similarity measures and is well validated against gold standard data but lacks target information and biologically relevant information.  
+
+The CommWalker algorithm devised by Luecken uses a random walk approach to sample the proteins assigned to functional modules \citep{Luecken2017}. For robustness, the modules are formed by three different link-analysis procedures and an average walk will produce a goodness of fit value. The walks are terminated when they have approach a critical value. At each step the functional GO annotation is averaged out to calculate  the module homogeneity, scores are then combined to enable each module to be ranked on its biological plausibility. 
+
+Other systems using a random walk such that developed by Kohler was devised to predict disease-to-gene associations \cite{Kohler2008}. Also, Macropol \cite{Macropol2009}. Now what did Erten do with DADA? \cite{Erten2011}. Now explain what Silberberg did with GLADIATOR \cite{Silberberg2017}. Also what Vanunu and friends did with PRINCE \cite{Vanunu2010}. More random walkers \cite{Li2018}, \cite{Cupertino2018} and \cite{Xin2016}.  The community detection system developed by Girvan used various methods \cite{Girvan2002}. The STVS by Kim used spanning trees and was very computationally efficient \cite{Kim2013}
+ 
+
+\section{Materials and methods}
+\subsection{Data and knowledge sources}
+We downloaded the following datasets and associated ontology's. We chose a wide variety of domains to demonstrate the pervasiveness and universality of our approach.
+
+
+\subsection{Scientific collaborations network data and the science ontology}
+
+\subsection{Financial securities data and the  ontology}
+
+\subsection{Disease network data and the gene ontology}
+The role and functionality of the numerous protein interactions occurring in the cell are vital to understanding the complexity and nature of diseases \citep{Menche2015}. The connectivity of interacting proteins ({\it interactome})  when mapped as a network reveals a complex web of relationships. Certain proteins have many connections while others are sparsely connected, however applying computational techniques such as link clustering and graph theoretic methods can reveal the modular nature of proteins as they cooperate in various activities \citep{McGarry2018a}. Graph theoretic methods can also identify interesting sub-graphs using a combination of clustering and classification methods and are are essential to unraveling the complex nature of genes, proteins and their relationship with diseases \citep{Ghiassian2015}. Figure \ref{dismod1} reveals the overlap of functional and structural modules and how they relate to disease modules. In this work we are interested in constructing reliable and biologically plausible modules of interacting proteins that are implicated in multiple diseases. The motivation for discovering linkages between diseases is to identify common biological pathways that may be implicated and potentially uncover novel drugs or re-target existing drugs for related diseases. Recent work confirms that a certain degree of modularity occurs in protein networks with overlap of function \citep{McGarry2013}. 
+
+We  access high quality protein-to-protein interactions from the HINT  databases \cite{Kuhn2012}.  The HINT database contains protein to chemical mappings and augments the information held in Drugbank which may not contain all the potential drug to protein interactions. In addition to OMIM database we also use known disease proteins from DisGeneNet \cite{Pinero2015}.
+
+Gene ontology (GO) provides useful biological information and it is recognized as the {\it de facto} standard for gene product annotation. This enables an assessment to be made regarding the biological plausibility of the interacting proteins to observe the extent they actually cooperate in viable biological functions rather than random or spurious associations. For each protein associated with a disease module enrichment was performed using gene ontology (GO), the enrichment is based on similarity measures using information content techniques. The content of which is calculated by taking the negative log probability of the terms $t$ appearing in the database. A number of measures can be used to rank semantic similarity, we used the {\it Wang} criterion as it reflects the biological plausibility better than other measures because of the way semantic similarity of the GO terms are calculated, using both the locations of the terms in the GO graph and their relations with their ancestor terms \cite{Wang2007}.
+
+\begin{equation}
+         Wang(A, B) = \frac{\displaystyle\sum_{t \in T_{A} \cap T_{B}}{S_{A}(t) + S_{B}(t)}}{SV(A) + SV(B)}
+\label{goe}
+\end{equation}
+
+For the Wang equation, where $SA(t)$ represents the S-value of GO term $t$ related to term $A$ and $SB(t)$ is the S-value of GO term $t$ related to term $B$. 
+
+Our R code and data files that generate the tables, diagrams and functional code described in this paper are freely available on GitHub for download: \\https://github.com/kenmcgarry/CommunityDetection
+
+\subsection{Using link clustering to link diseases with genes and with drugs}
+Clustering is widely used method for grouping together objects with common characteristics, the assumption is that objects found in the same cluster have greater commonality than objects located in a different cluster.  Numerous similarity measures are available to judge the homogeneity of the clusters and how well each data point matches cluster membership. However, with protein interaction data particular challenges arise, since the relationship between each protein pair is defined by a binary variable that defines either the presence or absence of an interaction.
+
+Usually, clustering genes (nodes) is performed to identify their network structure, unfortunately the difficulty is that each gene can only belong to a single community or function. This drawback is counterintuitive to the way genes and  protein typically operate. A more useful technique is to cluster the links between nodes which reveals their participation in other networks. The multiple links algorithm originally described by Ahn uses the Jaccard coefficient for assessment of link similarity \cite{Ahn2010}. This is implemented by the \emph{LinkComm} package \cite{Kalinka2011} and is shown in equation \ref{jaccard}, the jaccard coefficient checks similarity by checking links, $e_{ik}$ and $e_{jk}$ for shared nodes $k$. The neighbourhood of node $i$ is identified by $n+(i)$ which is then clustered after the assignment of the coefficients. The dendrogram displaying the clusters is then fixed at a point that maximizes the link density in terms of shared networks.
+
+\begin{equation}\label{jaccard}
+     S(e_{ik}, e_{jk}) =  \frac{\mid n + (i) \cap n + (j) \mid}{\mid n + (i) \cup n + (j) \mid}
+\end{equation}
+
+A novel measure of 'community' devised by Kalinka calculates the node centrality by measuring the weights of the communities based on their pair-wise similarity, as shown in equation \ref{pairwise}. 
+
+\begin{equation}\label{pairwise}
+     CC(i) =   \sum_{i\in j}^{N} \left( 1 -  \frac{1}{m} \sum_{i\in j \cap k}^{m} S(j,k) \right)
+\end{equation}
+
+Where: $S(j,k)$ refers to the similarity between community $j$ and $k$ which is calculated by the Jaccard coefficient for the total of shared nodes between each community. $N$ is the number of communities detected with respect to each node $i$.
+
+An efficient clustering algorithm should produce groups with very distinct non-overlapping boundaries, although a perfect separation can never be guaranteed in practice. Nontrivial communities possess 31 nodes. We use metadata ‘enrichment’ to assess community quality, comparing how similar nodes are within nontrivial communities relative to all nodes (global baseline). Overlap quality is the mutual information between the number of nontrivial memberships and the overlap metadata. Community coverage is the fraction of nodes belonging to  nontrivial communities. Overlap coverage, because methods with equal community coverage can extract different amounts of overlap, is the average number of nontrivial memberships per node. 
+
+Hierarchical clustering methods repeatedly merge groups until all elements are members of a single cluster. This eventually forces highly disparate regions of the network into single clusters. To find meaningful communities rather than just the hierarchical organization pattern of communities, it is crucial to know where to partition the dendrogram. Modularity has been widely used for similar purposes in node-hierarchies, but is not easily defined for overlapping communities. Thus, we introduced a new quantity, the partition density D, that measures the quality of a link partition. The partition density has a single global maximum along the dendrogram in almost all cases, because the value is just the average density at the top of the dendrogram (a single giant community with every link and node) and it is very small at the bottom of the dendrogram (most communities consist of a single link).
+
+Graph theoretic methods can be applied to any discipline where the entities of interest are linked together through various associations or relationships.  Quite diverse application areas such as social network analysis and biological networks are particularly suited to the mathematics of graph construction, traversal and inferencing. A graph G = (V, E) consists of a set of nodes often called vertices V and a set of links called edges E, . The links in this case are undirected, that is to say there is no implied direction to the relationship in the sense that A causes B.
+
+\begin{equation}\label{closeness}
+     CC(v_i) =  \frac{N - 1}{\sum_{j} d(v_i,v_j)}
+\end{equation}
+
+In algorithm \ref{alg1}, we detail our computational  methods of discovering the disease modules.
+
+\begin{algorithm}
+\scriptsize
+\caption{\label{alg1} The MINOAN method of random walks.}
+\textbf{Input:} Graph: $G(V,E)$, Start Node: $n$, Restart : $\alpha$\\
+\textbf{Output:} Matrix  ${\bf X}_c$
+\begin{algorithmic}[1]
+
+\State ${\bf Adjacency A}   \gets G(V,E)$
+\State ${\bf X}_c \gets \cos {\bf A}$
+\State Set $t=0$. Initialize ${\bf w}_t = {\bf w}_0$.
+\Repeat 
+\State Compute ${\bf y}_k^* =  \forall k$.
+\State Update the parameters by solving the following problem
+\State $t=t+1$
+\Until{objective function $<$  tolerance $\varepsilon$.}
+\end{algorithmic}
+\end{algorithm}
+
+The criteria we use to determine the relevance of disease connectivity is based upon recent discoveries,   it is likely that the essential genes and the disease genes encode the hubs \citep{Vidal2011} and that gene network topology is unlikely to encode the information to deduce disease modules \citep{Ghiassian2015}. 
+
+\begin{algorithm}
+\caption{Identification of topological modules}\label{alg2}
+\begin{algorithmic}[1]
+\scriptsize
+\Procedure{DiseaseModules}{$HINT, CHeMBL, GO$}
+   \State{\textit{\bf do initialize}}
+         \State \hspace{\algorithmicindent} $umls \gets \mbox {get UMLS code for disease}$
+      \State \hspace{\algorithmicindent} $DiseaseModList = 0$
+      \State \hspace{\algorithmicindent} $drugstructure =0$
+      \State \hspace{\algorithmicindent} $drugs =0$
+      \State \hspace{\algorithmicindent} $disgenes =$ 0
+      \State \hspace{\algorithmicindent} $shell2 =$ 0
+      \State \hspace{\algorithmicindent} $BP =$ 4.5
+\State{\textit{\bf end initialize}}  
+
+\EndProcedure
+\normalsize
+\end{algorithmic}
+\end{algorithm}
+
+The criteria we use to determine the relevance of disease connectivity is based upon recent discoveries,   it is likely that the essential genes and the disease genes encode the hubs \citep{Vidal2011} and that gene network topology is unlikely to encode the information to deduce disease modules \citep{Ghiassian2015}. 
+
+\begin{algorithm}
+\caption{Identification of functional modules}\label{alg3}
+\begin{algorithmic}[1]
+\scriptsize
+\Procedure{DiseaseModules}{$CHeMBL,DrugBank$}
+   \State{\textit{\bf do initialize}}
+         \State \hspace{\algorithmicindent} $umls \gets \mbox {get UMLS code for disease}$
+      \State \hspace{\algorithmicindent} $DiseaseModList = 0$
+      \State \hspace{\algorithmicindent} $BP =$ 4.5
+\State{\textit{\bf end initialize}}  
+
+\EndProcedure
+\normalsize
+\end{algorithmic}
+\end{algorithm}
+
+
+The disease modules are annotated with gene ontology and KEGG for biological plausibility using the ClusterProfiler package \citep{Yu2012}. We use an adapted form of the Cosine similarity measure, originally developed for information retrieval, but is finding increased use in bioinformatics applications \citep{Sun2014}. 
+
+\begin{equation}\label{closeness}
+cos(x,  y) = \frac {x \cdot  y}{|| x|| \cdot || y||}
+\end{equation}
+
+The Cosine similarity measures the structure of two n-dimensional vectors without respect to their numerical magnitude. The dot product of two numeric vectors, and it is normalized by the product of the vector lengths, so that output values close to 1 indicate high similarity and values close to 0 indicates low similarity.
+
+\section{Results}
+In figure \ref{bias} we show the potential for publication bias - the better studied proteins appear to have more connections to other proteins. 
+
+%%%%%%%%%%%%%%%%% Figure %%%%%%%%%%%%%%%%%
+\begin{figure}[h]
+%\epsfysize=4.0cm \leavevmode
+  \begin{center}
+ \includegraphics[width=9cm,height=8cm]{/common_laptop/Latex/DiseaseModules/pubbias.pdf} 
+  \end{center}
+\special{center} \caption{Examination of publication bias. Majority of proteins have low connectivity (degree) and few publications discussing interactions. However, some proteins have huge numbers of reported interactions and hence large numbers of publications. Hence, degree cannot be used by itself to identify important proteins in a complex network.}
+\label{bias}
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results}
+
+\section{Evaluation and discussion}
+We evaluate using the system proposed by Lancichinetti \cite{Lancichinetti2008}.
+
+\section{Conclusions}
+We have demonstrated how the application of a random walk weighted by domain knowledge can identify modules of cooperating entities. Our method MINOAN, is generic enough to apply to any domain that can be mapped as a complex network of relationships and provided with an associated ontology. We have compared MINOAN to existing community detection algorithms and validated the generated communities through the literature.
+
+
+\section*{Conflict of interests}
+We declare that we have no conflict of interest.
+
+\section*{Acknowledgments}
+Nothing yet.
+
+%\section*{References}  % elsart class does not automatically provide a section heading for references
+\bibliographystyle{plainnat}
+\bibliography{C:/common_laptop/Latex/kenrefs}
+\end{document}
+
+
+
